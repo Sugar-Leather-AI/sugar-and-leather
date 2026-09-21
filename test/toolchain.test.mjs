@@ -16,60 +16,21 @@ function read(path) {
   }
 }
 
-test("development, Docker, and CI use Node 24 consistently", () => {
-  const dockerfile = read("Dockerfile");
-  const feedbackDockerfile = read("server/feedback/Dockerfile");
-  const feedbackServer = read("server/feedback/index.mjs");
-  const deployWorkflow = read(".github/workflows/deploy.yml");
-  const ciWorkflow = read(".github/workflows/ci.yml");
+test("development tooling pins Node 24", () => {
   const packageJson = JSON.parse(read("package.json"));
   const packageLock = JSON.parse(read("package-lock.json"));
   const nvmrc = read(".nvmrc")?.trim() ?? null;
 
-  function workflowNodeMajors(workflow) {
-    if (!workflow) return [];
-
-    const explicit = [...workflow.matchAll(/node-version:\s*["']?(\d+)["']?/g)].map(
-      (match) => match[1],
-    );
-    const files = [
-      ...workflow.matchAll(/node-version-file:\s*["']?([^"'\s]+)["']?/g),
-    ].map((match) => read(match[1])?.trim() ?? null);
-
-    return [...explicit, ...files];
-  }
-
   assert.deepEqual(
     {
-      runtimeMajor: process.versions.node.split(".")[0],
-      dockerBuildMajor:
-        /^FROM node:(\d+)-alpine AS build$/m.exec(dockerfile)?.[1] ?? null,
-      feedbackDockerMajor:
-        /^FROM node:(\d+)-alpine$/m.exec(feedbackDockerfile)?.[1] ?? null,
-      feedbackDocumentedMajor:
-        /Node (\d+) has fetch/.exec(feedbackServer)?.[1] ?? null,
       nvmrc,
       packageEngine: packageJson.engines?.node ?? null,
       lockfileEngine: packageLock.packages?.[""]?.engines?.node ?? null,
-      deployWorkflowNodeMajors: workflowNodeMajors(deployWorkflow),
-      ciWorkflowNodeMajors: workflowNodeMajors(ciWorkflow),
-      ciRunsOnPullRequests: /^\s*pull_request:\s*$/m.test(ciWorkflow ?? ""),
-      ciRunsVerify: /^\s*-\s+run:\s+npm run verify\s*$/m.test(
-        ciWorkflow ?? "",
-      ),
     },
     {
-      runtimeMajor: "24",
-      dockerBuildMajor: "24",
-      feedbackDockerMajor: "24",
-      feedbackDocumentedMajor: "24",
       nvmrc: "24",
       packageEngine: ">=24 <25",
       lockfileEngine: ">=24 <25",
-      deployWorkflowNodeMajors: ["24"],
-      ciWorkflowNodeMajors: ["24"],
-      ciRunsOnPullRequests: true,
-      ciRunsVerify: true,
     },
   );
 });

@@ -13,7 +13,7 @@ Documentation of the technologies used to build and run the Sugar & Leather webs
 | Icons | [Lucide React](https://lucide.dev/) |
 | Styling | Custom CSS (`src/styles/`) |
 | Hosting | [Vercel](https://vercel.com/) |
-| Runtime (local / CI) | Node.js 24 (`engines`: `>=24 <25`) |
+| Runtime | Node.js 24 (`engines`: `>=24 <25`) |
 | Package manager | npm |
 
 **Production URL (Vercel):** https://sugar-and-leather.vercel.app  
@@ -52,8 +52,7 @@ SEO helpers live in `scripts/seo-check.mjs` and `scripts/seo-build.mjs` (route m
 - **Primary:** Vercel (Vite framework preset, output `dist/`)
 - **Config:** `vercel.json` — build command, output directory, SPA rewrites
 - **Node on Vercel:** 24.x
-
-CI lives under `.github/workflows/` (lint/test/build style checks). Continuous deploy from GitHub → Vercel requires the Vercel project’s GitHub connection to be authorized for the `Sugar-Leather-AI` org.
+- **GitHub Actions:** none right now — no CI verify job and no Docker/VM deploy workflow. Deploys are handled by Vercel.
 
 ---
 
@@ -61,9 +60,8 @@ CI lives under `.github/workflows/` (lint/test/build style checks). Continuous d
 
 | Piece | Role |
 | --- | --- |
-| `server/feedback/` | Optional Node feedback API (Dockerized) |
-| `Dockerfile` + `Caddyfile.container` | Legacy container image for static serving (previous VM path; not used for current Vercel hosting) |
-| `netlify.toml` | Leftover Netlify config; not used for production |
+| `server/feedback/` | Optional Node feedback API (legacy; not required for the static site) |
+| `Dockerfile` / `deploy/` / `netlify.toml` | Legacy artifacts from the previous Docker/VM hosting path; not used for current Vercel hosting |
 
 ---
 
